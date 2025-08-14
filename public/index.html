@@ -1,312 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CRUD Dashboard</title>
-  <style>
-    :root{
-      --bg:#0b1020; --card:#121a31; --muted:#8da2c0; --text:#e8eef9; --accent:#7c5cff; --accent-2:#22c55e; --danger:#ef4444; --warn:#f59e0b;
-      --border:#22304f; --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-    html,body{height:100%}
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0a0f1f 0%,#0e1428 100%);font:15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; color:var(--text);}    
-    .container{max-width:1100px;margin:40px auto;padding:0 20px}
-    .glass{background:rgba(18,26,49,.85);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);backdrop-filter: blur(8px);}    
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid var(--border)}
-    .title{display:flex;align-items:center;gap:12px}
-    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#4f46e5);display:grid;place-items:center;color:#fff;font-weight:800}
-    .title h1{margin:0;font-size:20px}
-    .muted{color:var(--muted);font-size:13px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
-    button, .btn{appearance:none;border:1px solid var(--border);background:#111729;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.18s transform,.18s opacity,.18s background,.18s border}
-    button:hover{transform:translateY(-1px)}
-    .btn-primary{background:linear-gradient(180deg,var(--accent),#5b42ff);border-color:#5a62c7}
-    .btn-success{background:linear-gradient(180deg,var(--accent-2),#16a34a);border-color:#19844a}
-    .btn-danger{background:linear-gradient(180deg,var(--danger),#b91c1c);border-color:#b91c1c}
-    .btn-ghost{background:#10182c;border-color:var(--border)}
-
-    main{padding:22px}
-    .panel{padding:18px;border-top:1px solid var(--border)}
-    .grid{display:grid;grid-template-columns: 1fr 320px; gap:18px}
-    @media(max-width:900px){.grid{grid-template-columns:1fr}}
-
-    .card{padding:18px}
-    .table{width:100%;border-collapse:separate;border-spacing:0}
-    .table th,.table td{padding:12px 14px;border-bottom:1px solid var(--border)}
-    .table th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,.02)}
-    .table tr:hover td{background:rgba(255,255,255,.02)}
-
-    .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:#0f1730;color:var(--muted)}
-    .status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-
-    .searchbar{display:flex; gap:8px}
-    .input{flex:1; background:#0c1328; border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:12px}
-
-    /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
-    .modal.open{display:flex}
-    .modal-card{width:100%;max-width:440px}
-    .field{display:grid;gap:6px;margin-bottom:14px}
-    label{font-size:13px;color:var(--muted)}
-    .helper{font-size:12px;color:var(--muted)}
-
-    .toast{position:fixed; right:18px; bottom:18px; display:grid; gap:10px; z-index:60}
-    .toast .item{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#0f1730}
-    .toast .ok{border-color:#14532d;background:#0b2016}
-    .toast .err{border-color:#7f1d1d;background:#1a0b0b}
-
-    .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#fff;animation:spin .9s linear infinite;display:inline-block}
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    .empty{padding:26px;border:1px dashed var(--border);border-radius:14px;text-align:center;color:var(--muted)}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple CRUD App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            width: 60%;
+            box-shadow: 0px 0px 5px #ccc;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background: #007BFF;
+            color: white;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="glass">
-      <header>
-        <div class="title">
-          <div class="logo">DB</div>
-          <div>
-            <h1>CRUD Operations</h1>
-            <div class="muted">Beautiful, fast UI for your existing API endpoints</div>
-          </div>
-        </div>
-        <div class="toolbar">
-          <button class="btn btn-primary" id="btnCreate">Create Table</button>
-          <button class="btn btn-success" id="btnAdd">Add Item</button>
-          <button class="btn btn-ghost" id="btnRefresh">Refresh</button>
-        </div>
-      </header>
 
-      <main>
-        <div class="grid">
-          <!-- Left: Table -->
-          <section class="card glass" id="listCard">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px">
-              <div class="searchbar" style="flex:1">
-                <input class="input" id="search" placeholder="Search items by name…"/>
-                <button class="btn" id="btnClear">Clear</button>
-              </div>
-              <div class="status">
-                <span class="pill" id="countPill">0 items</span>
-                <span class="pill" id="statusPill"><span class="spinner" id="smallSpin" style="display:none"></span><span id="statusText">Idle</span></span>
-              </div>
-            </div>
+<h1>CRUD Operations</h1>
 
-            <div id="tableWrap">
-              <table class="table" id="itemsTable" aria-label="Items list" style="display:none">
-                <thead>
-                  <tr>
-                    <th style="width:90px">ID</th>
-                    <th>Name</th>
-                    <th style="width:160px;text-align:right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody"></tbody>
-              </table>
-              <div id="emptyState" class="empty">No items yet. Click <b>Add Item</b> to create your first record.</div>
-            </div>
-          </section>
+<button onclick="createTable()">Create Table</button>
+<button onclick="addItem()">Add Item</button>
+<button onclick="getItems()">Get Items</button>
 
-          <!-- Right: Quick Actions -->
-          <aside class="card glass">
-            <h3 style="margin-top:0">Quick Actions</h3>
-            <div class="panel">
-              <button class="btn btn-primary" style="width:100%" id="btnAdd2">➕ Add Item</button>
-            </div>
-            <div class="panel">
-              <button class="btn btn-ghost" style="width:100%" id="btnCreate2">🧱 Create Table</button>
-            </div>
-            <div class="panel">
-              <div class="helper">This UI expects these endpoints:
-                <code>/createTable</code>, <code>/addItem</code> (POST {name}), <code>/getItems</code> (GET), <code>/updateItem</code> (POST {id,name}), <code>/deleteItem</code> (POST {id}).
-              </div>
-            </div>
-          </aside>
-        </div>
-      </main>
-    </div>
-  </div>
+<table id="itemsTable" style="display:none;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="glass modal-card card">
-      <h3 id="modalTitle" style="margin-top:0">Add Item</h3>
-      <div class="field">
-        <label for="itemName">Name</label>
-        <input class="input" id="itemName" placeholder="Enter name" />
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:10px">
-        <button class="btn btn-ghost" id="btnCancel">Cancel</button>
-        <button class="btn btn-primary" id="btnSave"><span id="saveSpin" class="spinner" style="display:none;margin-right:8px"></span><span id="saveText">Save</span></button>
-      </div>
-    </div>
-  </div>
+<div id="result"></div>
 
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const qs = s => document.querySelector(s);
-    const el = {
-      table: qs('#itemsTable'), tbody: qs('#tbody'), empty: qs('#emptyState'),
-      count: qs('#countPill'), statusText: qs('#statusText'), smallSpin: qs('#smallSpin'),
-      btnCreate: qs('#btnCreate'), btnCreate2: qs('#btnCreate2'),
-      btnAdd: qs('#btnAdd'), btnAdd2: qs('#btnAdd2'), btnRefresh: qs('#btnRefresh'),
-      search: qs('#search'), btnClear: qs('#btnClear'),
-      modal: qs('#modal'), itemName: qs('#itemName'), btnSave: qs('#btnSave'), btnCancel: qs('#btnCancel'),
-      modalTitle: qs('#modalTitle'), saveSpin: qs('#saveSpin'), saveText: qs('#saveText'),
-      toast: qs('#toast')
-    };
-
-    let editingId = null;
-
-    function toast(msg, type='ok'){
-      const div = document.createElement('div');
-      div.className = `item ${type==='ok'?'ok': type==='err'?'err':''}`;
-      div.textContent = msg;
-      el.toast.appendChild(div);
-      setTimeout(()=> div.remove(), 3200);
+<script>
+    function createTable() {
+        fetch('/createTable')
+            .then(res => res.text())
+            .then(msg => document.getElementById('result').innerText = msg);
     }
 
-    function setBusy(b){
-      el.statusText.textContent = b? 'Working…' : 'Idle';
-      el.smallSpin.style.display = b? 'inline-block' : 'none';
+    function addItem() {
+        const name = prompt('Enter item name:');
+        if (!name) return;
+        fetch('/addItem', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name })
+        })
+        .then(res => res.text())
+        .then(msg => {
+            document.getElementById('result').innerText = msg;
+            getItems();
+        });
     }
 
-    function openModal(title, defaultName=''){
-      el.modalTitle.textContent = title;
-      el.itemName.value = defaultName;
-      el.modal.classList.add('open');
-      setTimeout(()=> el.itemName.focus(), 50);
-    }
-    function closeModal(){ el.modal.classList.remove('open'); editingId=null; }
-
-    async function api(path, opts={}){
-      const init = { headers: { 'Content-Type':'application/json' }, ...opts };
-      if(init.body && typeof init.body !== 'string') init.body = JSON.stringify(init.body);
-      const res = await fetch(path, init);
-      if(!res.ok){
-        const txt = await res.text().catch(()=> '');
-        throw new Error(txt || res.status + ' ' + res.statusText);
-      }
-      const ct = res.headers.get('content-type')||'';
-      return ct.includes('application/json') ? res.json() : res.text();
-    }
-
-    function render(items){
-      const q = el.search.value.trim().toLowerCase();
-      const filtered = q? items.filter(it => (it.name||'').toLowerCase().includes(q)) : items;
-
-      el.tbody.innerHTML = '';
-      filtered.forEach(it =>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${it.id ?? ''}</td>
-          <td>${it.name ?? ''}</td>
-          <td style="text-align:right">
-            <button class="btn" onclick="editItem(${it.id}, '${(it.name||'').replace(/'/g, "&#39;")}')">Edit</button>
-            <button class="btn btn-danger" onclick="removeItem(${it.id})">Delete</button>
-          </td>`;
-        el.tbody.appendChild(tr);
-      });
-
-      el.count.textContent = `${filtered.length} item${filtered.length===1?'':'s'}`;
-      const has = filtered.length>0;
-      el.table.style.display = has? 'table' : 'none';
-      el.empty.style.display = has? 'none' : 'block';
+    function getItems() {
+        fetch('/getItems')
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById('itemsTable');
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>
+                            <button onclick="updateItem(${item.id})">Edit</button>
+                            <button onclick="deleteItem(${item.id})" style="background:red;">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                table.style.display = 'table';
+            });
     }
 
-    async function load(){
-      setBusy(true);
-      try{
-        const data = await api('/getItems');
-        const items = Array.isArray(data)? data : (data.items||[]);
-        render(items);
-      }catch(err){ toast('Load failed: '+err.message,'err'); }
-      finally{ setBusy(false); }
+    function updateItem(id) {
+        const newName = prompt('Enter new name:');
+        if (!newName) return;
+        fetch('/updateItem', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id, name: newName })
+        })
+        .then(res => res.text())
+        .then(msg => {
+            document.getElementById('result').innerText = msg;
+            getItems();
+        });
     }
 
-    // Actions
-    async function createTable(){
-      setBusy(true);
-      try{
-        const msg = await api('/createTable');
-        toast(typeof msg === 'string'? msg : 'Table ready');
-        await load();
-      }catch(err){ toast('Create failed: '+err.message,'err'); }
-      finally{ setBusy(false); }
+    function deleteItem(id) {
+        if (!confirm('Are you sure you want to delete this item?')) return;
+        fetch('/deleteItem', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+        })
+        .then(res => res.text())
+        .then(msg => {
+            document.getElementById('result').innerText = msg;
+            getItems();
+        });
     }
+</script>
 
-    async function addItem(name){
-      if(!name) return;
-      setBusy(true);
-      try{
-        const res = await api('/addItem',{method:'POST', body:{name}});
-        toast(typeof res==='string'? res : 'Item added');
-        await load();
-      }catch(err){ toast('Add failed: '+err.message,'err'); }
-      finally{ setBusy(false); }
-    }
-
-    async function updateItem(id,name){
-      setBusy(true);
-      try{
-        const res = await api('/updateItem',{method:'POST', body:{id,name}});
-        toast(typeof res==='string'? res : 'Item updated');
-        await load();
-      }catch(err){ toast('Update failed: '+err.message,'err'); }
-      finally{ setBusy(false); }
-    }
-
-    async function removeItem(id){
-      if(!confirm('Delete this item?')) return;
-      setBusy(true);
-      try{
-        const res = await api('/deleteItem',{method:'POST', body:{id}});
-        toast(typeof res==='string'? res : 'Item deleted');
-        await load();
-      }catch(err){ toast('Delete failed: '+err.message,'err'); }
-      finally{ setBusy(false); }
-    }
-
-    // Modal handlers
-    function editItem(id, current){
-      editingId = id;
-      openModal('Edit Item', current);
-    }
-
-    // Wire up UI
-    el.btnCreate.onclick = createTable;
-    el.btnCreate2.onclick = createTable;
-    el.btnAdd.onclick = ()=> { editingId=null; openModal('Add Item'); };
-    el.btnAdd2.onclick = ()=> { editingId=null; openModal('Add Item'); };
-    el.btnRefresh.onclick = load;
-    el.btnClear.onclick = ()=>{ el.search.value=''; load(); };
-    el.search.oninput = ()=> load();
-    el.btnCancel.onclick = closeModal;
-    el.btnSave.onclick = async ()=>{
-      const name = el.itemName.value.trim();
-      if(!name){ toast('Please enter a name','err'); return; }
-      el.saveSpin.style.display='inline-block'; el.saveText.textContent='Saving…';
-      try{
-        if(editingId){ await updateItem(editingId, name); }
-        else{ await addItem(name); }
-        closeModal();
-      }finally{
-        el.saveSpin.style.display='none'; el.saveText.textContent='Save';
-      }
-    };
-
-    // Expose for inline handlers
-    window.editItem = editItem;
-    window.removeItem = removeItem;
-
-    // Initial load
-    load();
-  </script>
 </body>
 </html>
 
