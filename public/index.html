@@ -7,9 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #f7971e, #ffd200, #00c6ff, #0072ff);
+            background: linear-gradient(135deg, #f6d365, #fda085, #84fab0, #8fd3f4);
             background-size: 400% 400%;
-            animation: gradientShift 12s ease infinite;
+            animation: gradientShift 10s ease infinite;
             margin: 0;
             padding: 0;
             color: #333;
@@ -26,8 +26,7 @@
 
         h1 {
             margin-top: 20px;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-            color: white;
+            text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
         }
 
         .btn-container {
@@ -43,41 +42,35 @@
             padding: 12px 20px;
             font-size: 16px;
             color: white;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        /* Button colors */
-        .btn-create { background: rgba(255,126,103,0.8); }
-        .btn-add    { background: rgba(40,199,111,0.8); }
-        .btn-get    { background: rgba(0,207,232,0.8); }
-        .btn-update { background: rgba(115,103,240,0.8); }
-        .btn-delete { background: rgba(234,84,85,0.8); }
+        /* Bright button colors */
+        .btn-create { background: #ff7e67; }
+        .btn-add    { background: #28c76f; }
+        .btn-get    { background: #00cfe8; }
+        .btn-update { background: #7367f0; }
+        .btn-delete { background: #ea5455; }
 
         button:hover {
             transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.4);
-            filter: brightness(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
 
         #result {
             margin-top: 30px;
             padding: 15px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
             width: 80%;
             max-width: 600px;
             min-height: 100px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             overflow-x: auto;
             white-space: pre-wrap;
-            color: white;
-            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -121,7 +114,7 @@
                         resultDiv.innerHTML = "No items found.";
                         return;
                     }
-                    resultDiv.innerHTML = data.map(item => 
+                    resultDiv.innerHTML = data.map(item =>
                         `ID: ${item.id} | Name: ${item.name}`
                     ).join("\n");
                 });
@@ -150,4 +143,3 @@
     </script>
 </body>
 </html>
-
