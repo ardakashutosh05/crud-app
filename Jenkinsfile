@@ -8,7 +8,7 @@ pipeline {
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         SONAR_TOKEN = credentials('sonar-token')
-        SONAR_ORGANIZATION = 'jenkins'
+        SONAR_ORGANIZATION = 'jenkins-project-12347''
         SONAR_PROJECT_KEY = 'jenkins-project-12347'
     }
 
@@ -18,7 +18,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner \
-  -Dsonar.organization="jenkins" \
+  -Dsonar.organization="jenkins-project-12347'" \
   -Dsonar.projectKey=jenkins-project-12347 \
   -Dsonar.sources=. \
   -Dsonar.host.url=https://sonarcloud.io '''
