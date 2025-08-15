@@ -2,16 +2,16 @@ const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const path = require('path');
-
-
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const port = 3000;
 
-// Create connection to MySQL
+// MySQL Connection
 const db = mysql.createConnection({
     host: 'testdb-2.cp24ccc4chcf.ap-southeast-1.rds.amazonaws.com',
     user: 'root',
@@ -19,76 +19,85 @@ const db = mysql.createConnection({
     database: 'testdb-2'
 });
 
-// Connect to MySQL
 db.connect((err) => {
-    if (err) {
-        throw err;
-    }
-    console.log('MySQL Connected...');
+    if (err) throw err;
+    console.log('✅ MySQL Connected...');
 });
 
-// Serve the HTML file
+// Serve frontend
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Create a table
+// Create table with timestamps
 app.get('/createTable', (req, res) => {
-    let sql = 'CREATE TABLE IF NOT EXISTS items(id int AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY(id))';
-    db.query(sql, (err, result) => {
+    const sql = `
+        CREATE TABLE IF NOT EXISTS items(
+            id INT AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY(id)
+        )
+    `;
+    db.query(sql, (err) => {
         if (err) throw err;
-        res.send('Items table created...');
+        res.send('✅ Items table created.');
     });
 });
 
-// Insert an item
+// Add item
 app.post('/addItem', (req, res) => {
-    let item = { name: req.body.name };
-    let sql = 'INSERT INTO items SET ?';
-    db.query(sql, item, (err, result) => {
+    const { name } = req.body;
+    if (!name || name.trim() === "") {
+        return res.status(400).json({ success: false, message: "Name is required" });
+    }
+    const sql = 'INSERT INTO items (name) VALUES (?)';
+    db.query(sql, [name], (err) => {
         if (err) throw err;
-        res.send('Item added...');
+        res.json({ success: true, message: "Item added successfully" });
     });
 });
 
-// Get all items
+// Get items with search, sort, pagination
 app.get('/getItems', (req, res) => {
-    let sql = 'SELECT * FROM items';
-    db.query(sql, (err, results) => {
+    let { search, sort, page, limit } = req.query;
+    search = search ? `%${search}%` : '%';
+    sort = sort === 'desc' ? 'DESC' : 'ASC';
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 5;
+    const offset = (page - 1) * limit;
+
+    const sql = `SELECT * FROM items WHERE name LIKE ? ORDER BY name ${sort} LIMIT ? OFFSET ?`;
+    db.query(sql, [search, limit, offset], (err, results) => {
         if (err) throw err;
         res.json(results);
     });
 });
 
-// Get a single item by ID
-app.get('/getItem/:id', (req, res) => {
-    let sql = `SELECT * FROM items WHERE id = ${req.params.id}`;
-    db.query(sql, (err, result) => {
-        if (err) throw err;
-        res.json(result);
-    });
-});
-
-// Update an item
+// Update item
 app.put('/updateItem/:id', (req, res) => {
-    let newName = req.body.name;
-    let sql = `UPDATE items SET name = ? WHERE id = ?`;
-    db.query(sql, [newName, req.params.id], (err, result) => {
+    const { name } = req.body;
+    if (!name || name.trim() === "") {
+        return res.status(400).json({ success: false, message: "Name is required" });
+    }
+    const sql = `UPDATE items SET name = ? WHERE id = ?`;
+    db.query(sql, [name, req.params.id], (err) => {
         if (err) throw err;
-        res.send('Item updated...');
+        res.json({ success: true, message: "Item updated successfully" });
     });
 });
 
-// Delete an item
+// Delete item
 app.delete('/deleteItem/:id', (req, res) => {
-    let sql = `DELETE FROM items WHERE id = ?`;
-    db.query(sql, [req.params.id], (err, result) => {
+    const sql = `DELETE FROM items WHERE id = ?`;
+    db.query(sql, [req.params.id], (err) => {
         if (err) throw err;
-        res.send('Item deleted...');
+        res.json({ success: true, message: "Item deleted successfully" });
     });
 });
 
 app.listen(port, "0.0.0.0", () => {
-    console.log(`Server started on port ${port}`);
+    console.log(`🚀 Server running on http://0.0.0.0:${port}`);
 });
 
