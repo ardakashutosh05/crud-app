@@ -5,8 +5,8 @@ pipeline {
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         SONAR_TOKEN = credentials('sonar-token')
-        SONAR_ORGANIZATION = 'jenkins-12'
-        SONAR_PROJECT_KEY = 'jenkins-12'
+        SONAR_ORGANIZATION = 'jenkins-1234'
+        SONAR_PROJECT_KEY = 'jenkins-1234'
     }
 
     stages {
@@ -15,8 +15,8 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                      sh '''$SCANNER_HOME/bin/sonar-scanner -X \
-     -Dsonar.organization=jenkins-12 \
-     -Dsonar.projectKey=jenkins-12 \
+     -Dsonar.organization=jenkins-1234 \
+     -Dsonar.projectKey=jenkins-1234 \
      -Dsonar.sources=. \
      -Dsonar.host.url=https://sonarcloud.io \
      -Dsonar.login=$SONAR_TOKEN'''
@@ -32,7 +32,7 @@ pipeline {
                 script {
                     docker.withRegistry('', 'docker-cred') {
                         def buildNumber = env.BUILD_NUMBER ?: '1'
-                        def image = docker.build("kalyanibambal97/crud-123:latest")
+                        def image = docker.build("ardakashutosh05/crud-123:latest")
                         image.push()
                     }
                 }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                         sh 'docker rm -f $(docker ps -q) || true'
-                        sh 'docker run -d -p 3000:3000 kalyanibambal97/crud-123:latest'
+                        sh 'docker run -d -p 3000:3000 ardakashutosh05/crud-123:latest'
 
 
                 }
