@@ -1,7 +1,7 @@
 function createTable() {
     fetch('/createTable')
         .then(res => res.text())
-        .then(data => document.getElementById('result').innerText = data);
+        .then(data => showMessage(data));
 }
 
 function addItem() {
@@ -13,7 +13,7 @@ function addItem() {
         body: JSON.stringify({ name })
     })
         .then(res => res.text())
-        .then(data => document.getElementById('result').innerText = data);
+        .then(data => showMessage(data));
 }
 
 function getItems() {
@@ -22,12 +22,27 @@ function getItems() {
         .then(data => {
             const resultDiv = document.getElementById('result');
             if (!data.length) {
-                resultDiv.innerHTML = "No items found.";
+                showMessage("No items found.");
                 return;
             }
-            resultDiv.innerHTML = data.map(item =>
-                `ID: ${item.id} | Name: ${item.name}`
-            ).join("\n");
+
+            // Create table
+            let table = `<table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            data.forEach(item => {
+                table += `<tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                </tr>`;
+            });
+            table += "</tbody></table>";
+            resultDiv.innerHTML = table;
         });
 }
 
@@ -41,7 +56,7 @@ function updateItem() {
         body: JSON.stringify({ name })
     })
         .then(res => res.text())
-        .then(data => document.getElementById('result').innerText = data);
+        .then(data => showMessage(data));
 }
 
 function deleteItem() {
@@ -49,6 +64,10 @@ function deleteItem() {
     if (!id) return;
     fetch(`/deleteItem/${id}`, { method: 'DELETE' })
         .then(res => res.text())
-        .then(data => document.getElementById('result').innerText = data);
+        .then(data => showMessage(data));
+}
+
+function showMessage(message) {
+    document.getElementById('result').innerHTML = `<p>${message}</p>`;
 }
 
