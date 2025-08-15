@@ -4,67 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD Operations</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ffecd2, #fcb69f);
-            color: #333;
-            text-align: center;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            color: #222;
-        }
-
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            transition: transform 0.2s ease, background-color 0.3s ease;
-        }
-
-        .btn-create { background: #4cafef; }
-        .btn-add { background: #28a745; }
-        .btn-get { background: #ffc107; color: black; }
-        .btn-update { background: #17a2b8; }
-        .btn-delete { background: #dc3545; }
-
-        button:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-            text-align: left;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            white-space: pre-line;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>✨ CRUD Operations</h1>
+
     <div class="btn-container">
         <button class="btn-create" onclick="createTable()">🛠 Create Table</button>
         <button class="btn-add" onclick="addItem()">➕ Add Item</button>
@@ -75,61 +19,7 @@
 
     <div id="result">Results will appear here...</div>
 
-    <script>
-        function createTable() {
-            fetch('/createTable')
-                .then(res => res.text())
-                .then(data => document.getElementById('result').innerText = data);
-        }
-
-        function addItem() {
-            const name = prompt('Enter item name:');
-            if (!name) return;
-            fetch('/addItem', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            })
-                .then(res => res.text())
-                .then(data => document.getElementById('result').innerText = data);
-        }
-
-        function getItems() {
-            fetch('/getItems')
-                .then(res => res.json())
-                .then(data => {
-                    const resultDiv = document.getElementById('result');
-                    if (!data.length) {
-                        resultDiv.innerHTML = "No items found.";
-                        return;
-                    }
-                    resultDiv.innerHTML = data.map(item =>
-                        `ID: ${item.id} | Name: ${item.name}`
-                    ).join("\n");
-                });
-        }
-
-        function updateItem() {
-            const id = prompt('Enter item ID to update:');
-            const name = prompt('Enter new item name:');
-            if (!id || !name) return;
-            fetch(`/updateItem/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            })
-                .then(res => res.text())
-                .then(data => document.getElementById('result').innerText = data);
-        }
-
-        function deleteItem() {
-            const id = prompt('Enter item ID to delete:');
-            if (!id) return;
-            fetch(`/deleteItem/${id}`, { method: 'DELETE' })
-                .then(res => res.text())
-                .then(data => document.getElementById('result').innerText = data);
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
-
+	
