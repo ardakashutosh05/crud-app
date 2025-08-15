@@ -1,7 +1,7 @@
 function createTable() {
     fetch('/createTable')
         .then(res => res.text())
-        .then(data => showMessage(data));
+        .then(data => showResult(data));
 }
 
 function addItem() {
@@ -12,37 +12,22 @@ function addItem() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name })
     })
-        .then(res => res.text())
-        .then(data => showMessage(data));
+    .then(res => res.text())
+    .then(data => showResult(data));
 }
 
 function getItems() {
     fetch('/getItems')
         .then(res => res.json())
         .then(data => {
-            const resultDiv = document.getElementById('result');
             if (!data.length) {
-                showMessage("No items found.");
+                showResult("No items found.");
                 return;
             }
-
-            // Create table
-            let table = `<table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            data.forEach(item => {
-                table += `<tr>
-                    <td>${item.id}</td>
-                    <td>${item.name}</td>
-                </tr>`;
-            });
-            table += "</tbody></table>";
-            resultDiv.innerHTML = table;
+            const itemsList = data.map(item =>
+                `ID: ${item.id} | Name: ${item.name}`
+            ).join("\n");
+            showResult(itemsList);
         });
 }
 
@@ -55,8 +40,8 @@ function updateItem() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name })
     })
-        .then(res => res.text())
-        .then(data => showMessage(data));
+    .then(res => res.text())
+    .then(data => showResult(data));
 }
 
 function deleteItem() {
@@ -64,10 +49,10 @@ function deleteItem() {
     if (!id) return;
     fetch(`/deleteItem/${id}`, { method: 'DELETE' })
         .then(res => res.text())
-        .then(data => showMessage(data));
+        .then(data => showResult(data));
 }
 
-function showMessage(message) {
-    document.getElementById('result').innerHTML = `<p>${message}</p>`;
+function showResult(message) {
+    document.getElementById('result').innerText = message;
 }
 
