@@ -1,128 +1,151 @@
-testing 123
-# DevOps Mentor Task
+🛠️ CRUD App with Jenkins, Docker, MySQL, and SonarCloud
 
-## Presentation Video
+A production-ready CRUD (Create, Read, Update, Delete) Node.js application with a MySQL database hosted on AWS RDS.
+CI/CD is automated with Jenkins, security & quality analysis via SonarCloud, and containerization using Docker.
 
-https://github.com/user-attachments/assets/cc52304e-0107-46f6-96e3-c20b7738408b
+📋 Project Setup Guide
+1️⃣ Launch an EC2 Instance (Ubuntu)
 
-## Architecture Diagrams
+Provision an EC2 instance (Ubuntu Free Tier).
 
-### CI/CD Pipeline Diagram
+Configure Security Group:
 
-![arch2](https://github.com/user-attachments/assets/84e7501b-e925-455c-8674-6e343225fd68)
+22 → SSH
 
-### Terraform and AWS Resources Diagram
+8080 → Jenkins
 
-![arch1](https://github.com/user-attachments/assets/71f63fb4-f611-459e-93bb-6cd232a5771a)
+3000 → Node.js app
 
-## Dockerizing the Node.js App
+🔑 Connect via SSH:
 
-The Dockerfile for the Node.js app is included in the repository.
+ssh -i <your-key>.pem ubuntu@<EC2_PUBLIC_IP>
 
-## Setting Up AWS Resources
+2️⃣ Run EC2 Setup Script
 
-The following AWS resources are set up using Terraform:
+Run the installation script to set up Docker + Jenkins:
 
-1. **EC2 Instances**:
-   - `nodejsapp`
-   - `jenkins`
-   - `monitoring`
+chmod +x scripts/docker-jenkins-install.sh
+./scripts/docker-jenkins-install.sh
 
-2. **RDS Instance**:
-   - mysql
- 
-3. **Key Pairs**:
-   - `jenkins`
-   - `nodejsapp`
+3️⃣ AWS RDS (MySQL)
 
-4. **Security Groups**:
-   - `jenkins`
-   - `nodejsapp`
-   - `rds`
-   - `monitoring`
-  
-## Terraform Templates
+Navigate to RDS → Create Database
 
-The Terraform templates provision the required infrastructure on AWS. The following files are included in the repository:
+Select:
 
-- `backend.tf`: Configures the backend for Terraform state storage.
-- `instances.tf`: Defines the EC2 instances for Jenkins, monitoring, and the Node.js app.
-- `keypairs.tf`: Defines the key pairs for SSH access to the instances.
-- `providers.tf`: Configures the providers required for the AWS resources.
-- `rds.tf`: Defines the RDS instance for the MySQL database.
-- `secgrp.tf`: Defines the security groups for Jenkins, monitoring, Node.js app, and RDS.
-- `vars.tf`: Defines the variables used in the Terraform configuration.
+Engine: MySQL
 
-## Monitoring
+Identifier: testdb-1
 
-Monitoring is set up using Prometheus and Grafana. These services are deployed on a separate EC2 instance.
+Username: root
 
-1. **Prometheus Configuration**:
-   - Scrape configurations for the Node.js app and other services are added to \`prometheus.yml\`.
+Password: *********
 
-2. **Grafana Configuration**:
-   - Prometheus is added as a data source in Grafana.
-   - Dashboards are created to visualize key metrics.
+Public access: ✅ Yes (for testing)
 
-## Setting Up CI/CD Pipeline
+📌 Example endpoint:
 
-The Jenkinsfile for setting up the CI/CD pipeline is included in the repository.  
+testdb-1.cp24ccc4chcf.ap-southeast-1.rds.amazonaws.com
 
-## Setup and Run Instructions
+4️⃣ Clone the Repository
+git clone https://github.com/ashubambal/crud-app.git
+cd crud-app
 
-### Step-by-Step Process
+5️⃣ Access Jenkins
 
-1. **Created an S3 Bucket for Terraform State File**:
-   - I started by creating an S3 bucket to store the Terraform state file. This bucket is essential for managing the state of the Terraform deployment and ensuring consistent provisioning of resources.
+Open: http://<EC2_PUBLIC_IP>:8080
 
-2. **Provisioned Resources Using Terraform**:
-   - I used Terraform from my local computer to provision the necessary AWS resources. This involved:
-     - Initializing Terraform with `terraform init`.
-     - Validating the configuration with `terraform validate`.
-     - Planning the deployment with `terraform plan`.
-     - Applying the configuration with `terraform apply`.
+Get unlock key:
 
-3. **Configured Each Instance**:
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
-   - **Jenkins Server**:
-     - I installed Jenkins on the designated server.
-     - I added the required plugins, to facilitate secure operations.
-     - I configured credentials within Jenkins, including the GitHub access token, Docker credentials, and SSH access to EC2.
-     - I created a Jenkins pipeline and prepared it for the CI/CD process.
-     - I installed Docker on the Jenkins instance to handle containerization tasks.
+6️⃣ Install Jenkins Plugins
 
-   - **Node.js Instance**:
-     - I installed Docker on the Node.js instance to support containerized applications.
-     - I set up Node Exporter to collect and expose metrics for monitoring purposes.
+✅ Recommended plugins:
 
-   - **Monitoring Instance**:
-     - I set up Prometheus on the monitoring instance to scrape and store metrics from various sources.
-     - I installed and configured Grafana to visualize the metrics collected by Prometheus.
+Docker Pipeline
 
-4. **Created a Webhook on GitHub**:
-   - To automate the build process, I created a webhook on the GitHub repository. This webhook triggers the Jenkins pipeline automatically whenever new code is pushed to the repository.
+SonarQube Scanner
 
-By following these steps, I successfully set up the necessary infrastructure, configured each instance properly, and ensured that the CI/CD pipeline is ready to handle automated deployments triggered by GitHub webhooks.
+Pipeline Stage View
 
-## Challenges Faced
+7️⃣ Setup SonarCloud
 
-- **Cleaning Up Old Builds**:
-  - Too many builds were eating up disk space with old Docker images, which could crash the server. I added a stage in the Jenkins pipeline to clean up these old images and builds.
+Go to SonarCloud → Analyze new project
 
-- **Security Groups**:
-  - Setting up security groups to keep the network communication secure and functional was tricky. I had to make sure the rules allowed the necessary traffic while keeping everything safe.
+Link GitHub Repository
 
-- **Handling Credentials**:
-  - Keeping all the credentials (GitHub tokens, Docker creds, SSH keys) secure and correctly set up in Jenkins was a bit of a headache. I had to double-check everything to make sure it was all good.
+Create Organization → Jenkins
 
-- **Terraform Dependencies**:
-  - Making sure Terraform created resources in the right order was a challenge. I had to keep validating the config to avoid messing things up.
+Generate a Sonar Token:
 
-- **Monitoring Setup**:
-  - Getting Prometheus and Grafana up and running took some effort. I had to configure them to collect and show the right metrics and make sure Node Exporter was working on the Node.js instance.
+My Account → Security → Generate Token
 
-- **Setting Up Webhooks**:
-  - Setting up the GitHub webhook to automatically trigger Jenkins builds was a bit fiddly. I had to make sure it pointed to the right place and handled 
+8️⃣ Add Credentials in Jenkins
 
+🔐 Navigate: Manage Jenkins → Credentials → Global
 
----
+ID	Type	Purpose
+sonar-token	Secret text	SonarCloud authentication
+docker-cred	Username + Password	DockerHub login credentials
+9️⃣ Configure SonarQube in Jenkins
+
+Global Tool Configuration → Add SonarQube Scanner
+
+Manage Jenkins → System → Add SonarQube Server:
+
+Name: SonarCloud
+
+URL: https://sonarcloud.io
+
+Credentials: sonar-token
+
+🔟 Create Jenkins Pipeline
+
+New item → ci-jenkins → Pipeline
+
+Enable: ✅ GitHub hook trigger for GITScm polling
+
+Pipeline script from SCM (GitHub repo)
+
+Add GitHub Webhook:
+
+Repo → Settings → Webhooks
+
+URL: http://<EC2-IP>:8080/github-webhook/
+
+Content type: application/json
+
+1️⃣1️⃣ Run & Access the App
+
+🌍 Visit:
+
+http://<EC2_PUBLIC_IP>:3000
+
+📁 Project Structure
+crud-app/
+├── app.js                  # Express app
+├── Dockerfile              # Docker container config
+├── Jenkinsfile             # Jenkins pipeline
+├── package.json
+├── public/                 # Static frontend
+├── scripts/
+│   └── docker-jenkins-install.sh
+└── .env                    # Local secrets (ignored in git)
+
+✅ Technologies Used
+
+⚡ Node.js + Express
+
+🗄️ MySQL (AWS RDS)
+
+🐳 Docker
+
+🛠️ Jenkins
+
+🔍 SonarCloud
+
+🌐 GitHub
+
+🎨 Website UI & Operation
+<p align="center"> <img src="assets/recording.gif" alt="Demo" width="700"> </p>
