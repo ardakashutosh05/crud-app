@@ -1,128 +1,141 @@
-🛠️ CRUD App with Jenkins, Docker, MySQL, and SonarCloud
+# 🛠️ CRUD App with Jenkins, Docker, MySQL, and SonarCloud
 
-A production-ready CRUD (Create, Read, Update, Delete) Node.js application with a MySQL database hosted on AWS RDS.
-CI/CD is automated with Jenkins, security & quality analysis via SonarCloud, and containerization using Docker.
+A simple CRUD (Create, Read, Update, Delete) Node.js application with MySQL database hosted on AWS RDS. Jenkins is used for CI/CD pipeline and SonarCloud for static code analysis.
 
-📋 Project Setup Guide
-1️⃣ Launch an EC2 Instance (Ubuntu)
+---
 
-Provision an EC2 instance (Ubuntu Free Tier).
+## 📋 Project Setup Guide
 
-Configure Security Group:
+### 1. 🚀 Launch an EC2 Instance (Ubuntu)
 
-22 → SSH
+- Create an EC2 instance using **Ubuntu (Free Tier)**
+- Open ports in the **security group**:
+  - `22` (SSH)
+  - `8080` (Jenkins)
+  - `3000` (Node.js app)
+- Connect via SSH:
+  ```bash
+  ssh -i <your-key>.pem ubuntu@<EC2_PUBLIC_IP>
+  ```
+---
 
-8080 → Jenkins
+### 2. ⚙️ Run EC2 Setup Script
 
-3000 → Node.js app
+- Run the script to install:
+    - System updates
+    - Docker
+    - Jenkins
 
-🔑 Connect via SSH:
+  ```bash
+  chmod +x scripts/docker-jenkins-install.sh
+  ./scripts/docker-jenkins-install.sh
+  ```
+---
 
-ssh -i <your-key>.pem ubuntu@<EC2_PUBLIC_IP>
+### 3. 🗄️ AWS RDS (MySQL)
 
-2️⃣ Run EC2 Setup Script
+- Go to RDS → Create database
+- Select:
+    - Engine: MySQL
+    - DB identifier: testdb-1
+    - Username: root
+    - Password: *********
+    - Public access: Yes (for testing)
+- After creation, note the endpoint:
+  ```bash
+  testdb-1.cp24ccc4chcf.ap-southeast-1.rds.amazonaws.com
+  ```
 
-Run the installation script to set up Docker + Jenkins:
+---
 
-chmod +x scripts/docker-jenkins-install.sh
-./scripts/docker-jenkins-install.sh
+### 4. 📦 Clone the Repository
 
-3️⃣ AWS RDS (MySQL)
+  ```bash
+  git clone https://github.com/ashubambal/crud-app.git
+  cd crud-app
+  ```
 
-Navigate to RDS → Create Database
+---
 
-Select:
+### 5. 🔐 Access Jenkins
 
-Engine: MySQL
+- Visit: http://<EC2_PUBLIC_IP>:8080
+- Get the Jenkins unlock key:
 
-Identifier: testdb-1
+  ```bash
+  sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+  ```
+---
 
-Username: root
+### 6. ➕ Install Jenkins Plugins
 
-Password: *********
+- Install the following plugins:
+    - Docker Pipeline
+    - SonarQube Scanner
+    - Pipeline Stage View
 
-Public access: ✅ Yes (for testing)
+---
 
-📌 Example endpoint:
+### 7. 🔍 Setup SonarCloud
 
-testdb-1.cp24ccc4chcf.ap-southeast-1.rds.amazonaws.com
+- Go to SonarCloud
+- Click: "Analyze a new project"
+- Link your GitHub repository
+- Organization name: Jenkins
+- Click: "Create organization"
+- Create a Sonar Token (keep it safe)
+    - Step two create sonar token -> Click on My-account -> Security -> Ganrate token
 
-4️⃣ Clone the Repository
-git clone https://github.com/ashubambal/crud-app.git
-cd crud-app
+---
 
-5️⃣ Access Jenkins
+### 8. 🔑 Add Credentials in Jenkins
 
-Open: http://<EC2_PUBLIC_IP>:8080
+- Go to:
+- Manage Jenkins → Credentials → System → Global credentials → Add Credentials
+- Add the following:
+```
+| ID            | Type                | Use                       |
+| ------------- | ------------------- | ------------------------- |
+| `sonar-token` | Secret text         | SonarCloud authentication |
+| `docker-cred` | Username + Password | DockerHub login           |
+```  
+---
 
-Get unlock key:
+### 9. ⚙️ Configure SonarQube in Jenkins
 
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+- Go to:
+- Manage Jenkins → Global Tool Configuration
+- SonarQube Scanner installations:
+    - Name: sonar-scanner
+    - Version: select appropriate version -> save
+- Go to:
+- Manage Jenkins → System   
+- SonarQube servers:
+    - Name: SonarCloud
+    - Select Environment Variable check box
+    - URL: https://sonarcloud.io
+    - Credentials: sonar-token -> save
 
-6️⃣ Install Jenkins Plugins
+---
 
-✅ Recommended plugins:
+### 10. 🚀 Create Jenkins Pipeline
 
-Docker Pipeline
+- Create a new item (ci-jenkins) -> pipeline -> click on check box (GitHub hook trigger for GITScm polling)
+- Pipeline (Pipeline script from SCM) -> Use GitHub as source -> save
+- Add webhook support -> Go to Github Repo settings -> Webhooks -> http://<EC2-IP>:8080/github-webhook/ -> Content type * (appliation/json) -> save
 
-SonarQube Scanner
+---
 
-Pipeline Stage View
+### 11. 🌐 Run & Access the App
 
-7️⃣ Setup SonarCloud
+  ```bash
+  http://<EC2_PUBLIC_IP>:3000
+  ```
+---
 
-Go to SonarCloud → Analyze new project
+## 📁 Project Structure
 
-Link GitHub Repository
-
-Create Organization → Jenkins
-
-Generate a Sonar Token:
-
-My Account → Security → Generate Token
-
-8️⃣ Add Credentials in Jenkins
-
-🔐 Navigate: Manage Jenkins → Credentials → Global
-
-ID	Type	Purpose
-sonar-token	Secret text	SonarCloud authentication
-docker-cred	Username + Password	DockerHub login credentials
-9️⃣ Configure SonarQube in Jenkins
-
-Global Tool Configuration → Add SonarQube Scanner
-
-Manage Jenkins → System → Add SonarQube Server:
-
-Name: SonarCloud
-
-URL: https://sonarcloud.io
-
-Credentials: sonar-token
-
-🔟 Create Jenkins Pipeline
-
-New item → ci-jenkins → Pipeline
-
-Enable: ✅ GitHub hook trigger for GITScm polling
-
-Pipeline script from SCM (GitHub repo)
-
-Add GitHub Webhook:
-
-Repo → Settings → Webhooks
-
-URL: http://<EC2-IP>:8080/github-webhook/
-
-Content type: application/json
-
-1️⃣1️⃣ Run & Access the App
-
-🌍 Visit:
-
-http://<EC2_PUBLIC_IP>:3000
-
-📁 Project Structure
+  ```bash
 crud-app/
 ├── app.js                  # Express app
 ├── Dockerfile              # Docker container config
@@ -131,21 +144,24 @@ crud-app/
 ├── public/                 # Static frontend
 ├── scripts/
 │   └── docker-jenkins-install.sh
-└── .env                    # Local secrets (ignored in git)
+└── .env                    # (not committed, local secrets)
+  ```
+---
 
-✅ Technologies Used
+## ✅ Technologies Used
 
-⚡ Node.js + Express
+- Node.js + Express
+- MySQL (AWS RDS)
+- Docker
+- Jenkins
+- SonarCloud
+- GitHub
 
-🗄️ MySQL (AWS RDS)
+---
 
-🐳 Docker
+## Website UI and Operation
 
-🛠️ Jenkins
+<p align="center">
+  <img src="assets/recording.gif" alt="Demo" width="700">
+</p>
 
-🔍 SonarCloud
-
-🌐 GitHub
-
-🎨 Website UI & Operation
-<p align="center"> <img src="assets/recording.gif" alt="Demo" width="700"> </p>
