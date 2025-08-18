@@ -40,7 +40,7 @@ pipeline {
         }
 
 
-        stage('Deploy To EC2') {
+      stage('Deploy To EC2') {
             steps {
                 script {
                         sh 'docker rm -f $(docker ps -q) || true'
@@ -50,6 +50,5 @@ pipeline {
                 }
             }
         }
-
 }
 }
