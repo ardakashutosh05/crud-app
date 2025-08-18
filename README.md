@@ -165,80 +165,79 @@ crud-app/
   <img src="assets/recording.gif" alt="Demo" width="700">
 </p>
 
-🚢 CI/CD with Kubernetes (EKS)
+---
+## 🚢CI/CD with Kubernetes (EKS)
 
 So far, our Jenkins pipeline deployed the app directly on EC2.
 Now, we’ll extend the pipeline to deploy on Kubernetes (EKS) with automatic image pull from Docker Hub.
 
-12. 🧩 Jenkins Pipeline (4 Stages)
+---
+## 12.🧩 Jenkins Pipeline (4 Stages)
 
 Our Jenkinsfile will contain 4 stages:
+- Build – Install dependencies & run tests
+- SonarCloud Analysis – Static code analysis
+- Docker Build & Push – Build & push Docker image to DockerHub
+- Deploy to Kubernetes – Apply Kubernetes manifests
 
-Build – Install dependencies & run tests
+---
+## 13.⚙️ Kubernetes Setup (via Script)
 
-SonarCloud Analysis – Static code analysis
-
-Docker Build & Push – Build & push Docker image to DockerHub
-
-Deploy to Kubernetes – Apply Kubernetes manifests
-
-13. ⚙️ Kubernetes Setup (via Script)
-
-We already have a script for Kubernetes setup:
+- We already have a script for Kubernetes setup:
 
 cd script/
+```
 chmod 777 setup-k8s.sh
 ./setup-k8s.sh
+```
+---
 
-14. ☁️ AWS CLI Configuration
-aws configure
+## 14. ☁️ AWS CLI Configuration
+  - aws configure
+  - AWS Access Key ID → <your-access-key>
+  - AWS Secret Access Key → <your-secret-key>
+  - Default region → us-east-1 (N. Virginia)
+  - Output format → json
 
+---
 
-AWS Access Key ID → <your-access-key>
+## 15. 🔑 IAM Role for EC2 → EKS Access
 
-AWS Secret Access Key → <your-secret-key>
+  - Go to IAM → Roles → Create Role
+  - Trusted Entity: AWS Service
+  - Use Case: EC2
+  - Attach Policies:
+    - AmazonEKSClusterPolicy
+    - AmazonEKSWorkerNodePolicy
+    - AmazonEC2ContainerRegistryFullAccess
+    - AmazonEKS_CNI_Policy
+    - Name: EC2-EKS-Access-Role
+  - Attach Role to EC2 (Jenkins Instance):
+  - EC2 → Instances → Select Instance → Actions → Security → Modify IAM Role
 
-Default region → us-east-1 (N. Virginia)
+---
 
-Output format → json
-
-15. 🔑 IAM Role for EC2 → EKS Access
-
-Go to IAM → Roles → Create Role
-
-Trusted Entity: AWS Service
-
-Use Case: EC2
-
-Attach Policies:
-
-AmazonEKSClusterPolicy
-
-AmazonEKSWorkerNodePolicy
-
-AmazonEC2ContainerRegistryFullAccess
-
-AmazonEKS_CNI_Policy
-
-Name: EC2-EKS-Access-Role
-
-Attach Role to EC2 (Jenkins Instance):
-EC2 → Instances → Select Instance → Actions → Security → Modify IAM Role
-
-16. ☸️ Create EKS Cluster
+## 16. ☸️ Create EKS Cluster
+```bash
 eksctl create cluster \
-  --name cluster2 \
-  --region ap-southeast-1 \
-  --node-type t2.medium \
-  --zones ap-southeast-1a,ap-southeast-1b
+  - name cluster2 \
+  - region ap-southeast-1 \
+  - node-type t2.medium \
+  - zones ap-southeast-1a,ap-southeast-1b
+```
 
-17. 🔑 Update kubeconfig
+---
+
+## 17. 🔑 Update kubeconfig
+```bash
 aws eks --region ap-southeast-1 update-kubeconfig --name cluster2
+```
+---
 
-18. 📝 Create Kubernetes YAML Files
+## 18. 📝 Create Kubernetes YAML Files
 
 📌 k8s/app.yaml
-
+```bash
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -258,10 +257,10 @@ spec:
           image: ardakashutosh05/crud-123:latest
           ports:
             - containerPort: 3000
-
+```
 
 📌 k8s/svc.yaml
-
+```bash
 apiVersion: v1
 kind: Service
 metadata:
@@ -274,19 +273,22 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-
+```
 
 📌 Apply configs:
-
+```bash
 kubectl apply -f k8s/app.yaml
 kubectl apply -f k8s/svc.yaml
 kubectl get pods
 kubectl get svc
+```
 
-19. 🤖 Jenkinsfile with Kubernetes Deployment
+---
+
+## 19. 🤖 Jenkinsfile with Kubernetes Deployment
 
 Extend your Jenkinsfile with Kubernetes deployment stage:
-
+```bash
 stage('Deploy to Kubernetes') {
     steps {
         sh """
@@ -295,8 +297,5 @@ stage('Deploy to Kubernetes') {
         """
     }
 }
-
-
+```
 ✅ Now, every time you push code → Jenkins builds → SonarCloud analysis → Docker image push → Kubernetes auto-deploys! 🚀
-
-
