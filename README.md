@@ -164,10 +164,11 @@ crud-app/
 <p align="center">
   <img src="assets/recording.gif" alt="Demo" width="700">
 </p>
+
 🚢 CI/CD with Kubernetes (EKS)
 
-So far, our Jenkins pipeline deployed the app directly to EC2.
-Now, we’ll extend the pipeline to deploy on Kubernetes (EKS) with auto image pull from Docker Hub.
+So far, our Jenkins pipeline deployed the app directly on EC2.
+Now, we’ll extend the pipeline to deploy on Kubernetes (EKS) with automatic image pull from Docker Hub.
 
 12. 🧩 Jenkins Pipeline (4 Stages)
 
@@ -183,7 +184,7 @@ Deploy to Kubernetes – Apply Kubernetes manifests
 
 13. ⚙️ Kubernetes Setup (via Script)
 
-We already have a script for Kubernetes setup.
+We already have a script for Kubernetes setup:
 
 cd script/
 chmod 777 setup-k8s.sh
@@ -221,9 +222,8 @@ AmazonEKS_CNI_Policy
 
 Name: EC2-EKS-Access-Role
 
-Attach Role to EC2:
-
-EC2 → Instances → Select Jenkins Instance → Actions → Security → Modify IAM Role
+Attach Role to EC2 (Jenkins Instance):
+EC2 → Instances → Select Instance → Actions → Security → Modify IAM Role
 
 16. ☸️ Create EKS Cluster
 eksctl create cluster \
@@ -237,7 +237,7 @@ aws eks --region ap-southeast-1 update-kubeconfig --name cluster2
 
 18. 📝 Create Kubernetes YAML Files
 
-📌 Create k8s/app.yaml
+📌 k8s/app.yaml
 
 apiVersion: apps/v1
 kind: Deployment
@@ -260,7 +260,7 @@ spec:
             - containerPort: 3000
 
 
-📌 Create k8s/svc.yaml
+📌 k8s/svc.yaml
 
 apiVersion: v1
 kind: Service
@@ -276,7 +276,7 @@ spec:
       targetPort: 3000
 
 
-Apply configs:
+📌 Apply configs:
 
 kubectl apply -f k8s/app.yaml
 kubectl apply -f k8s/svc.yaml
@@ -285,7 +285,7 @@ kubectl get svc
 
 19. 🤖 Jenkinsfile with Kubernetes Deployment
 
-Extend your Jenkinsfile with Kubernetes deployment:
+Extend your Jenkinsfile with Kubernetes deployment stage:
 
 stage('Deploy to Kubernetes') {
     steps {
@@ -295,5 +295,8 @@ stage('Deploy to Kubernetes') {
         """
     }
 }
+
+
+✅ Now, every time you push code → Jenkins builds → SonarCloud analysis → Docker image push → Kubernetes auto-deploys! 🚀
 
 
