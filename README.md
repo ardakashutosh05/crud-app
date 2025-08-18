@@ -164,4 +164,136 @@ crud-app/
 <p align="center">
   <img src="assets/recording.gif" alt="Demo" width="700">
 </p>
+🚢 CI/CD with Kubernetes (EKS)
+
+So far, our Jenkins pipeline deployed the app directly to EC2.
+Now, we’ll extend the pipeline to deploy on Kubernetes (EKS) with auto image pull from Docker Hub.
+
+12. 🧩 Jenkins Pipeline (4 Stages)
+
+Our Jenkinsfile will contain 4 stages:
+
+Build – Install dependencies & run tests
+
+SonarCloud Analysis – Static code analysis
+
+Docker Build & Push – Build & push Docker image to DockerHub
+
+Deploy to Kubernetes – Apply Kubernetes manifests
+
+13. ⚙️ Kubernetes Setup (via Script)
+
+We already have a script for Kubernetes setup.
+
+cd script/
+chmod 777 setup-k8s.sh
+./setup-k8s.sh
+
+14. ☁️ AWS CLI Configuration
+aws configure
+
+
+AWS Access Key ID → <your-access-key>
+
+AWS Secret Access Key → <your-secret-key>
+
+Default region → us-east-1 (N. Virginia)
+
+Output format → json
+
+15. 🔑 IAM Role for EC2 → EKS Access
+
+Go to IAM → Roles → Create Role
+
+Trusted Entity: AWS Service
+
+Use Case: EC2
+
+Attach Policies:
+
+AmazonEKSClusterPolicy
+
+AmazonEKSWorkerNodePolicy
+
+AmazonEC2ContainerRegistryFullAccess
+
+AmazonEKS_CNI_Policy
+
+Name: EC2-EKS-Access-Role
+
+Attach Role to EC2:
+
+EC2 → Instances → Select Jenkins Instance → Actions → Security → Modify IAM Role
+
+16. ☸️ Create EKS Cluster
+eksctl create cluster \
+  --name cluster2 \
+  --region ap-southeast-1 \
+  --node-type t2.medium \
+  --zones ap-southeast-1a,ap-southeast-1b
+
+17. 🔑 Update kubeconfig
+aws eks --region ap-southeast-1 update-kubeconfig --name cluster2
+
+18. 📝 Create Kubernetes YAML Files
+
+📌 Create k8s/app.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crud-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crud-app
+  template:
+    metadata:
+      labels:
+        app: crud-app
+    spec:
+      containers:
+        - name: crud-app
+          image: ardakashutosh05/crud-123:latest
+          ports:
+            - containerPort: 3000
+
+
+📌 Create k8s/svc.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: crud-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: crud-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+
+
+Apply configs:
+
+kubectl apply -f k8s/app.yaml
+kubectl apply -f k8s/svc.yaml
+kubectl get pods
+kubectl get svc
+
+19. 🤖 Jenkinsfile with Kubernetes Deployment
+
+Extend your Jenkinsfile with Kubernetes deployment:
+
+stage('Deploy to Kubernetes') {
+    steps {
+        sh """
+          kubectl apply -f k8s/app.yaml
+          kubectl apply -f k8s/svc.yaml
+        """
+    }
+}
+
 
